@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片上传并显示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .result {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .image-preview {
+            max-width: 48%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            max-width: 48%;
+            padding: 20px;
+            background-color: #e9e9e9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+        }
+        .upload-btn {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>上传并显示图片</h1>
+    <form id="upload-form">
+        <label for="file-upload">选择一个图片文件:</label>
+        <input type="file" id="file-upload" name="file" accept="image/*" required>
+        <button type="submit" class="upload-btn">上传图片</button>
+    </form>
+
+    <div id="result" class="result">
+        <div id="image-container" style="display:none;">
+            <h2>图片预览:</h2>
+            <img id="image-preview" class="image-preview" src="" alt="Image Preview">
+        </div>
+        <div id="content-container" style="display:none;">
+            <h2>图片说明:</h2>
+            <div id="content" class="content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 处理上传图片和显示图片预览
+    document.getElementById('upload-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // 防止表单默认提交
+
+        const fileInput = document.getElementById('file-upload');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        // 发送POST请求到后端
+        fetch('http://localhost:8080/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 显示图片预览
+            const imageUrl = data.imageUrl;  // 假设返回的图片URL是data.imageUrl
+            const imagePreview = document.getElementById('image-preview');
+            const imageContainer = document.getElementById('image-container');
+            imagePreview.src = imageUrl;
+            imageContainer.style.display = 'block';
+
+            // 显示图片内容
+            const content = document.getElementById('content');
+            const contentContainer = document.getElementById('content-container');
+            content.innerHTML = `<p>${data.content}</p>`;
+            contentContainer.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('上传失败:', error);
+            alert('上传失败，请重试。');
+        });
+    });
+</script>
+
+</body>
+</html>

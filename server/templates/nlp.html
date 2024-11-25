@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        .input-container textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result h2 {
+            text-align: center;
+        }
+        .result p {
+            text-align: center;
+            font-size: 18px;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation links -->
+<div class="nav-links">
+    <a href="ocr">OCR识图</a>
+    <a href="translate">翻译</a>
+    <a href="table">识别表格</a>
+</div>
+
+<div class="container">
+    <h1>文本翻译</h1>
+    <form id="translate-form">
+        <div class="input-container">
+            <textarea id="text-to-translate" rows="4" placeholder="输入你要翻译的文本"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">翻译</button>
+    </form>
+
+    <div id="result" class="result" style="display:none;">
+        <h2>翻译结果</h2>
+        <p id="translated-text"></p>
+    </div>
+</div>
+
+<script>
+    // 处理翻译请求
+    document.getElementById('translate-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // 阻止表单提交
+
+        const text = document.getElementById('text-to-translate').value;
+
+        fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `text=${encodeURIComponent(text)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.translated) {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('translated-text').textContent = data.translated;
+            } else {
+                alert('翻译失败，请稍后再试。');
+            }
+        })
+        .catch(error => {
+            console.error('翻译请求失败:', error);
+            alert('翻译失败，请稍后再试。');
+        });
+    });
+</script>
+
+</body>
+</html>

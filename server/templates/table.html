@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表格识别</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .image-preview {
+            max-width: 48%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        .input-container input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .download-link {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .download-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- Navigation links -->
+<div class="nav-links">
+    <a href="ocr">OCR识图</a>
+    <a href="translate">翻译</a>
+    <a href="table">识别表格</a>
+</div>
+
+<div class="container">
+    <h1>表格识别</h1>
+    <form id="table-form">
+        <div class="input-container">
+            <input type="file" id="file-upload" name="file" accept="image/*" required>
+        </div>
+        <button type="submit" class="submit-btn">上传图片</button>
+    </form>
+
+    <div id="result" class="result" style="display:none;">
+        <h2>识别结果</h2>
+        <p id="recognized-text"></p>
+    </div>
+    <div id="image-container" style="display:none;">
+        <h2>图片预览:</h2>
+        <img id="image-preview" class="image-preview" src="" alt="Image Preview">
+    </div>
+    <div class="download-link" id="download-link">
+        <p>Excel 文件已生成，点击下载:</p>
+        <a id="download-excel" href="#" download="result.xlsx">下载 Excel</a>
+    </div>
+</div>
+
+<script>
+    // 处理表格识别请求
+    document.getElementById('table-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // 阻止表单提交
+
+        const fileInput = document.getElementById('file-upload');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        fetch('http://localhost:8080/table', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 显示识别结果
+            if (data.text) {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('recognized-text').textContent = data.text;
+            }
+            // 提供 Excel 下载链接
+            if (data.excelUrl) {
+                document.getElementById('download-link').style.display = 'block';
+                document.getElementById('download-excel').href = data.excelUrl;
+            }
+            // 显示图片预览
+            if (data.imageUrl) {
+                const imageUrl = data.imageUrl;  // 假设返回的图片URL是data.imageUrl
+                const imagePreview = document.getElementById('image-preview');
+                const imageContainer = document.getElementById('image-container');
+                imagePreview.src = imageUrl;
+                imageContainer.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('识别请求失败:', error);
+            alert('识别失败，请稍后再试。');
+        });
+    });
+</script>
+
+</body>
+</html>
